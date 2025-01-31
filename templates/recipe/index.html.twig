@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Recettes{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h1 class="recipe-title mb-4">
+                    <i class="fas fa-utensils me-2"></i>Livre de Recettes
+                </h1>
+                <div class="recipe-decoration" id="recipe-icons">
+                    <i class="fas fa-bread-slice text-warning mx-2"></i>
+                    <i class="fas fa-egg text-secondary mx-2"></i>
+                    <i class="fas fa-cheese text-warning mx-2"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <p class="recipe-count mb-0">{{ recipes|length }} recettes à découvrir</p>
+                <a href="{{ path('app_recipe_new') }}" class="btn-recipe">
+                    <i class="fas fa-plus me-2"></i>Nouvelle Recette
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for recipe in recipes %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card-perspective-wrapper">
+                        <div class="recipe-card-modern" style="animation-delay: {{ loop.index * 0.1 }}s">
+                            <span class="reading-time">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ (recipe.description|length / 200)|round }} min
+                            </span>
+                            <div class="recipe-card-header">
+                                <span class="recipe-date">{{ recipe.createdAt ? recipe.createdAt|date('d M Y') : '' }}</span>
+                                <h3 class="recipe-name">{{ recipe.name }}</h3>
+                            </div>
+                            <div class="recipe-tags">
+                                <span class="recipe-tag">
+                                    <i class="fas fa-clock me-1"></i>{{ recipe.createdAt|date('Y') }}
+                                </span>
+                                <span class="recipe-tag">
+                                    <i class="fas fa-file-alt me-1"></i>{{ recipe.description|length > 500 ? 'Long' : 'Court' }}
+                                </span>
+                            </div>
+                            <div class="recipe-card-body">
+                                <p class="recipe-description">{{ recipe.description|slice(0, 100) }}...</p>
+                            </div>
+                            <div class="recipe-card-actions">
+                                <a href="{{ path('app_recipe_show', {'id': recipe.id}) }}" 
+                                   class="btn-recipe-action" title="Voir la recette">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}" 
+                                   class="btn-recipe-action" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="post" action="{{ path('app_recipe_delete', {'id': recipe.id}) }}" 
+                                      class="d-inline"
+                                      onsubmit="return confirm('Voulez-vous vraiment supprimer cette recette ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ recipe.id) }}">
+                                    <button class="btn-recipe-action" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center">
+                    <div class="empty-cookbook">
+                        <i class="fas fa-book-open fa-3x mb-3"></i>
+                        <p>Aucune recette pour le moment. Commencez à créer votre livre de recettes !</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const icons = [
+                { icon: 'bread-slice', color: 'warning' },
+                { icon: 'egg', color: 'secondary' },
+                { icon: 'cheese', color: 'warning' },
+                { icon: 'pizza-slice', color: 'danger' },
+                { icon: 'apple-alt', color: 'success' },
+                { icon: 'cookie', color: 'primary' },
+                { icon: 'pepper-hot', color: 'danger' },
+                { icon: 'ice-cream', color: 'info' },
+                { icon: 'hamburger', color: 'warning' },
+                { icon: 'drumstick-bite', color: 'danger' },
+                { icon: 'fish', color: 'info' },
+                { icon: 'carrot', color: 'warning' },
+                { icon: 'lemon', color: 'warning' },
+                { icon: 'coffee', color: 'secondary' }
+            ];
+
+            function getRandomIcons(count) {
+                const shuffled = [...icons].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, count);
+            }
+
+            function updateIcons() {
+                const container = document.getElementById('recipe-icons');
+                const selectedIcons = getRandomIcons(3);
+                container.innerHTML = selectedIcons.map(item => 
+                    `<i class="fas fa-${item.icon} text-${item.color} mx-2"></i>`
+                ).join('');
+            }
+
+            updateIcons();
+
+            // Animation séquentielle des cartes
+            document.querySelectorAll('.recipe-card-modern').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Calcul du temps de lecture
+            function calculateReadingTime(text) {
+                const wordsPerMinute = 200;
+                const words = text.trim().split(/\s+/).length;
+                return Math.ceil(words / wordsPerMinute);
+            }
+
+            // Animation progressive des cartes au scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.recipe-card-modern').forEach(card => {
+                observer.observe(card);
+            });
+
+            // Animation du compteur de recettes
+            const counter = document.querySelector('.recipe-count');
+            const count = {{ recipes|length }};
+            let current = 0;
+            const duration = 1000;
+            const step = timestamp => {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                current = Math.min(Math.floor((progress / duration) * count), count);
+                counter.textContent = `${current} recettes à découvrir`;
+                if (progress < duration) window.requestAnimationFrame(step);
+            };
+            let start = null;
+            window.requestAnimationFrame(step);
+
+            // Effet 3D sur les cartes
+            document.querySelectorAll('.recipe-card-modern').forEach(card => {
+                card.addEventListener('mousemove', handleMouseMove);
+                card.addEventListener('mouseleave', handleMouseLeave);
+                card.addEventListener('mouseenter', handleMouseEnter);
+            });
+
+            function handleMouseMove(e) {
+                const card = e.currentTarget;
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; // Position X de la souris dans la carte
+                const y = e.clientY - rect.top;  // Position Y de la souris dans la carte
+                
+                // Calculer les degrés de rotation (-20 à +20 degrés)
+                const rotateY = ((x / rect.width) * 40) - 20;
+                const rotateX = (((y / rect.height) * 40) - 20) * -1;
+
+                // Appliquer la transformation
+                card.style.transform = `
+                    perspective(1000px)
+                    rotateX(${rotateX}deg)
+                    rotateY(${rotateY}deg)
+                    scale3d(1.02, 1.02, 1.02)
+                `;
+            }
+
+            function handleMouseEnter(e) {
+                const card = e.currentTarget;
+                // Réinitialiser toute transition précédente
+                card.style.transition = 'none';
+            }
+
+            function handleMouseLeave(e) {
+                const card = e.currentTarget;
+                // Ajouter une transition douce pour le retour
+                card.style.transition = 'transform 0.5s ease-out';
+                card.style.transform = `
+                    perspective(1000px)
+                    rotateX(0deg)
+                    rotateY(0deg)
+                    scale3d(1, 1, 1)
+                `;
+            }
+        });
+    </script>
+{% endblock %}

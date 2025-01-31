@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+
+{% block title %}Nouvelle Recette
+{% endblock %}
+
+{% block body %}
+	<div class="container my-5">
+		<div class="row mb-4">
+			<div class="col text-center">
+				<h1 class="recipe-title mb-4">
+					<i class="fas fa-plus-circle me-2"></i>Nouvelle Recette
+				</h1>
+				<div class="recipe-decoration">
+					<i class="fas fa-hat-chef text-warning mx-2"></i>
+					<i class="fas fa-cookie-bite text-primary mx-2"></i>
+					<i class="fas fa-mortar-pestle text-danger mx-2"></i>
+				</div>
+			</div>
+		</div>
+
+		<div class="row justify-content-center">
+			<div class="col-md-8">
+				<div class="recipe-card-modern">
+					<div class="recipe-card-header mb-4">
+						<span class="recipe-date">
+							<i class="fas fa-magic me-2"></i>
+							Créez votre nouvelle recette
+						</span>
+					</div>
+					<div class="recipe-editor">
+						{{ include('recipe/_form.html.twig', {
+                            'button_label': 'Créer la recette'
+                        }) }}
+					</div>
+				</div>
+
+				<div class="recipe-actions mt-4">
+					<a href="{{ path('app_recipe_index') }}" class="btn-recipe">
+						<i class="fas fa-arrow-left me-2"></i>Retour au livre
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

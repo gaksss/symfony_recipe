@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ recipe.name }}{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h1 class="recipe-title mb-4">
+                    <i class="fas fa-utensils me-2"></i>{{ recipe.name }}
+                </h1>
+                <div class="recipe-decoration">
+                    <i class="fas fa-star text-warning mx-2"></i>
+                    <i class="fas fa-cookie text-secondary mx-2"></i>
+                    <i class="fas fa-heart text-danger mx-2"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="recipe-details-card">
+                    <div class="recipe-info">
+                        <div class="recipe-metadata">
+                            <span class="recipe-date">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                {{ recipe.createdAt ? recipe.createdAt|date('d M Y à H:i') : '' }}
+                            </span>
+                            <span class="recipe-stat">
+                                <i class="fas fa-clock me-2"></i>
+                                {{ (recipe.description|length / 200)|round }} min de lecture
+                            </span>
+                            <span class="recipe-stat">
+                                <i class="fas fa-text-height me-2"></i>
+                                {{ recipe.description|length }} caractères
+                            </span>
+                        </div>
+                        <div class="recipe-content mt-4">
+                            <div class="recipe-section">
+                                <h3 class="recipe-section-title">
+                                    <i class="fas fa-align-left me-2"></i>Description
+                                </h3>
+                                <p class="recipe-description-text">{{ recipe.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recipe-actions mt-4 text-center">
+                    <a href="{{ path('app_recipe_index') }}" class="btn-recipe">
+                        <i class="fas fa-arrow-left me-2"></i>Retour aux recettes
+                    </a>
+                    <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}" class="btn-recipe btn-edit">
+                        <i class="fas fa-edit me-2"></i>Modifier
+                    </a>
+                    {{ include('recipe/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Ajout d'un Easter egg amusant #}
+    <script>
+        const title = document.querySelector('.recipe-title');
+        let clicks = 0;
+        title.addEventListener('click', () => {
+            clicks++;
+            if (clicks === 5) {
+                title.style.transform = 'rotate(360deg)';
+                title.style.transition = 'transform 0.5s ease';
+            }
+        });
+    </script>
+{% endblock %}

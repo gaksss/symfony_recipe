@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>
+			{% block title %}Welcome!
+			{% endblock %}
+		</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+		<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+		{% block stylesheets %}
+			<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+		{% endblock %}
+		<style>
+			:root {
+				 --primary: #FF6B6B;
+                --secondary: #4ECDC4;
+                --accent: #FFE66D;
+                --background: #FDF6E3;
+                --text: #2C3E50;
+                --card-bg: #FFFFFF;
+                --success: #95E1D3;
+                --danger: #FF8C94;
+                --recipe-shadow: rgba(0, 0, 0, 0.1);
+			}
+
+			body {
+				background-color: var(--background);
+				background-image: linear-gradient(
+					120deg,
+					#f7f7f7 0%,
+					#eee8d5 100%
+				);
+				font-family: 'Source Sans Pro', sans-serif;
+				color: var(--text);
+				min-height: 100vh;
+			}
+
+			.table {
+                background: var(--card-bg);
+                color: var(--text);
+            }
+
+            .table thead th {
+                background: var(--primary);
+                color: white;
+                font-family: 'Libre Baskerville', serif;
+                border: none;
+            }
+
+            .btn-recipe {
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                border: none;
+                color: white;
+                margin: 0 2px;
+                background-color: var(--primary);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                position: relative;
+                overflow: hidden;
+                background-image: radial-gradient(circle, transparent 1%, var(--primary) 1%);
+                background-position: center;
+                background-size: 15000%;
+                transition: background 0.8s, transform 0.3s, box-shadow 0.3s;
+            }
+
+            .btn-recipe.btn-sm {
+                padding: 6px 12px;
+                font-size: 0.875rem;
+            }
+
+            .btn-recipe.btn-edit {
+                background-color: var(--secondary);
+            }
+
+            .btn-recipe.btn-delete {
+                background-color: var(--danger);
+            }
+
+            .btn-recipe:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                filter: brightness(1.1);
+            }
+
+            .btn-recipe:active {
+                transform: translateY(0);
+                background-size: 100%;
+                transition: background 0s;
+            }
+
+            .btn-recipe i {
+                transition: transform 0.3s ease;
+            }
+
+            .btn-recipe:hover i {
+                transform: scale(1.2);
+            }
+
+            a.btn-recipe {
+                background: var(--primary);
+                font-size: 1.1em;
+                padding: 10px 24px;
+                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+            }
+
+            a.btn-recipe:hover {
+                box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+            }
+
+            .rgb-border, .rgb-text, .neon-border, .gamer-title,
+            .bg-image, .overlay-active, .overlay-inactive,
+            .btn-image-mode, .image-mode {
+                display: none;
+            }
+
+            /* Nouvelles cartes de recettes */
+            .recipe-card-modern {
+                background: var(--card-bg);
+                border-radius: 15px;
+                box-shadow: 0 5px 15px var(--recipe-shadow);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                padding: 1.5rem;
+                height: 100%;
+                border-left: 5px solid var(--primary);
+                animation: recipeCardIn 0.6s ease-out;
+                animation-fill-mode: both;
+                transform-style: preserve-3d;
+                perspective: none; /* Supprimé car on utilise perspective sur le parent */
+                transition: none; /* Suppression de la transition pour éviter les conflits */
+                transform: translate3d(0, 0, 0); /* Position initiale en 3D */
+            }
+
+            /* Ajout d'un conteneur avec perspective pour chaque carte */
+            .card-perspective-wrapper {
+                perspective: 1000px;
+                transform-style: preserve-3d;
+                width: 100%;
+                height: 100%;
+            }
+
+            .recipe-card-modern > * {
+                transform-style: preserve-3d;
+            }
+
+            .recipe-card-modern .recipe-card-content {
+                transform: translateZ(20px);
+            }
+
+            .recipe-card-modern .recipe-card-actions {
+                transform: translateZ(40px);
+            }
+
+            /* Suppression de l'ancien effet hover */
+            .recipe-card-modern:hover {
+                transform: none;
+                box-shadow: 0 14px 28px rgba(0,0,0,0.15);
+            }
+
+            .recipe-card-modern::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1), transparent);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .recipe-card-modern:hover::before {
+                opacity: 1;
+            }
+
+            .recipe-card-header {
+                margin-bottom: 1rem;
+            }
+
+            .recipe-date {
+                font-size: 0.9rem;
+                color: #666;
+                font-style: italic;
+            }
+
+            .recipe-name {
+                font-family: 'Libre Baskerville', serif;
+                color: var(--primary);
+                font-size: 1.5rem;
+                margin: 0.5rem 0;
+            }
+
+            .recipe-description {
+                color: var(--text);
+                font-size: 1rem;
+                line-height: 1.6;
+                margin-bottom: 1.5rem;
+            }
+
+            .recipe-card-actions {
+                display: flex;
+                gap: 0.5rem;
+                position: absolute;
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .btn-recipe-action {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                border: none;
+                transition: all 0.2s ease;
+                background-color: var(--primary);
+                cursor: pointer;
+            }
+
+            .btn-recipe-action:nth-child(2) {
+                background-color: var(--secondary);
+            }
+
+            .btn-recipe-action:last-child {
+                background-color: var(--danger);
+            }
+
+            .btn-recipe-action:hover {
+                transform: scale(1.1);
+                box-shadow: 0 3px 10px var(--recipe-shadow);
+            }
+
+            .recipe-count {
+                font-family: 'Libre Baskerville', serif;
+                color: var(--text);
+                font-style: italic;
+            }
+
+            .empty-cookbook {
+                padding: 3rem;
+                color: #666;
+                background: var(--card-bg);
+                border-radius: 15px;
+                box-shadow: 0 5px 15px var(--recipe-shadow);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .empty-cookbook::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--primary), var(--secondary));
+            }
+
+            .recipe-decoration i {
+                font-size: 1.5rem;
+                opacity: 0.8;
+                animation: float 3s ease-in-out infinite;
+                animation-delay: calc(var(--i, 0) * 0.5s);
+            }
+
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+
+            /* Styles pour la page de détails */
+            .recipe-details-card {
+                background: var(--card-bg);
+                border-radius: 15px;
+                box-shadow: 0 5px 15px var(--recipe-shadow);
+                padding: 2rem;
+                border-left: 5px solid var(--primary);
+            }
+
+            .recipe-metadata {
+                color: #666;
+                font-style: italic;
+                padding-bottom: 1rem;
+                border-bottom: 2px dashed rgba(0,0,0,0.1);
+            }
+
+            .recipe-section {
+                margin: 1.5rem 0;
+            }
+
+            .recipe-section-title {
+                color: var(--primary);
+                font-family: 'Libre Baskerville', serif;
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+
+            .recipe-description-text {
+                line-height: 1.8;
+                color: var(--text);
+                font-size: 1.1rem;
+            }
+
+            /* Styles pour le formulaire */
+            .recipe-form-card {
+                background: var(--card-bg);
+                border-radius: 15px;
+                box-shadow: 0 5px 15px var(--recipe-shadow);
+                padding: 2rem;
+                border-left: 5px solid var(--secondary);
+            }
+
+            .recipe-actions {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .recipe-actions .btn-recipe {
+                min-width: 160px;
+            }
+
+            /* Nouveaux styles pour le formulaire */
+            .recipe-form {
+                padding: 1rem;
+            }
+
+            .recipe-form-label {
+                font-family: 'Libre Baskerville', serif;
+                color: var(--primary);
+                font-size: 1.1rem;
+            }
+
+            .recipe-form-input {
+                width: 100%;
+                padding: 0.8rem;
+                border: 2px solid rgba(0,0,0,0.1);
+                border-radius: 8px;
+                background-color: white;
+                transition: all 0.3s ease;
+            }
+
+            .recipe-form-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+                background-image: linear-gradient(to top, transparent 95%, var(--primary) 95%);
+            }
+
+            .recipe-editor {
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Style des erreurs de formulaire */
+            .form-error {
+                color: var(--danger);
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+            }
+
+            /* Modification du style des actions pour plus d'espace */
+            .recipe-actions {
+                margin-top: 2rem;
+                gap: 1.5rem;
+            }
+
+            .recipe-actions .btn-recipe {
+                padding: 0.8rem 1.5rem;
+                min-width: auto;
+            }
+
+            /* Animations d'entrée améliorées */
+            @keyframes recipeCardIn {
+                0% { opacity: 0; transform: translateY(30px); }
+                100% { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Effet de profondeur au hover */
+            .recipe-card-modern::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1), transparent);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .recipe-card-modern:hover::before {
+                opacity: 1;
+            }
+
+            /* Badge de temps de lecture */
+            .reading-time {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: var(--accent);
+                color: var(--text);
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                opacity: 0.9;
+                backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            /* Style des tags/catégories */
+            .recipe-tags {
+                display: flex;
+                gap: 0.5rem;
+                margin: 1rem 0;
+                flex-wrap: wrap;
+            }
+
+            .recipe-tag {
+                padding: 0.2rem 0.8rem;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                background: rgba(255, 107, 107, 0.1);
+                color: var(--primary);
+                transition: all 0.3s ease;
+                cursor: default;
+            }
+
+            .recipe-tag:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                background: var(--primary);
+                color: white;
+            }
+
+            /* Animation du titre */
+            .recipe-title {
+                position: relative;
+                display: inline-block;
+            }
+
+            .recipe-title::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                bottom: -5px;
+                width: 100%;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary), var(--secondary));
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.3s ease;
+            }
+
+            .recipe-title:hover::after {
+                transform: scaleX(1);
+            }
+
+            /* Effet de brillance sur les boutons */
+            .btn-recipe::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    120deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.3),
+                    transparent
+                );
+                transition: 0.5s;
+            }
+
+            .btn-recipe:hover::before {
+                left: 100%;
+            }
+
+            /* Styles de carte simplifiés pour l'effet 3D */
+            .recipe-card-modern {
+                background: var(--card-bg);
+                border-radius: 15px;
+                box-shadow: 0 5px 15px var(--recipe-shadow);
+                position: relative;
+                padding: 1.5rem;
+                height: 100%;
+                border-left: 5px solid var(--primary);
+                transform-style: preserve-3d;
+                will-change: transform;
+                transition: transform 0.1s ease-out;
+            }
+
+            .recipe-card-modern > * {
+                transform-style: preserve-3d;
+            }
+
+            /* Suppression des anciennes transitions et transformations */
+            .recipe-card-modern:hover {
+                box-shadow: 0 14px 28px rgba(0,0,0,0.15);
+            }
+		</style>
+	</head>
+	<body>
+		<div class="fade-in">
+			{% block body %}{% endblock %}
+		</div>
+		
+		{% block javascripts %}
+			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		{% endblock %}
+	</body>
+</html>

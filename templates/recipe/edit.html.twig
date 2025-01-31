@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ recipe.name }}{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h1 class="recipe-title mb-4">
+                    <i class="fas fa-edit me-2"></i>{{ recipe.name }}
+                </h1>
+                <div class="recipe-decoration">
+                    <i class="fas fa-kitchen-set text-warning mx-2"></i>
+                    <i class="fas fa-utensils text-primary mx-2"></i>
+                    <i class="fas fa-fire text-danger mx-2"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="recipe-card-modern">
+                    <div class="recipe-card-header mb-4">
+                        <span class="recipe-date">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Créée le {{ recipe.createdAt ? recipe.createdAt|date('d M Y') : '' }}
+                        </span>
+                    </div>
+                    <div class="recipe-editor">
+                        {{ include('recipe/_form.html.twig', {'button_label': 'Sauvegarder les modifications'}) }}
+                    </div>
+                </div>
+
+                <div class="recipe-actions mt-4">
+                    <a href="{{ path('app_recipe_index') }}" class="btn-recipe">
+                        <i class="fas fa-arrow-left me-2"></i>Retour
+                    </a>
+                    <a href="{{ path('app_recipe_show', {'id': recipe.id}) }}" class="btn-recipe btn-edit">
+                        <i class="fas fa-eye me-2"></i>Voir la recette
+                    </a>
+                    {{ include('recipe/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
