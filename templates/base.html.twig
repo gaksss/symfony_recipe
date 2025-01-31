@@ -507,6 +507,13 @@
 		</style>
 	</head>
 	<body>
+    <header>
+    {% if app.user %}
+    
+    <a href="{{path('app_logout')}}">Déconnexion</a>
+    
+    {% endif %}
+    </header>
 		<div class="fade-in">
 			{% block body %}{% endblock %}
 		</div>
