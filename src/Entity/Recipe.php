@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\RecipeRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: RecipeRepository::class)]
 class Recipe
@@ -15,6 +17,9 @@ class Recipe
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'The name cannot be blank.')]
+    #[Assert\NotNull(message: 'The name cannot be null.')]
+    #[Assert\Length(min: 5, max: 150)]
     private ?string $name = null;
 
     #[ORM\Column]
@@ -26,6 +31,10 @@ class Recipe
     #[ORM\ManyToOne(inversedBy: 'recipes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Category $category = null;
+
+    #[ORM\ManyToOne(inversedBy: 'recipes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $author = null;
 
 
 public function __construct(DateTimeImmutable $createdAt = new DateTimeImmutable())
@@ -82,6 +91,18 @@ public function __construct(DateTimeImmutable $createdAt = new DateTimeImmutable
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): static
+    {
+        $this->author = $author;
 
         return $this;
     }
