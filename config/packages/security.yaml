@@ -35,6 +35,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/UserController, roles: ROLE_ADMIN }
          - { path: ^/recipe/new, roles: ROLE_USER }
 
 when@test:
